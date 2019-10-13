@@ -177,12 +177,14 @@ def create_network_face_detection(gpu_memory_fraction):
 
 def load_images_from_folder(folder):
     images = []
+    image_filenames = []
     for filename in os.listdir(folder):
         if ".png" in filename:
             img = misc.imread(os.path.join(folder, filename))
-        if img is not None:
-            images.append(img)
-    return images
+            if img is not None:
+                images.append(img)
+                image_filenames.append(filename)
+    return images, image_filenames
 
 
 def parse_arguments(argv):
