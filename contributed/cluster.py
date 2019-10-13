@@ -65,7 +65,7 @@ def main(args):
                     dist = np.sqrt(np.sum(np.square(np.subtract(emb[i, :], emb[j, :]))))
                     matrix[i][j] = dist
 
-            np.save(matrix, "dist_matrix.npy")
+            np.save("dist_matrix.npy", matrix)
 
             # DBSCAN is the only algorithm that doesn't require the number of clusters to be defined.
             db = DBSCAN(
