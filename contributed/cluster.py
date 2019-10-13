@@ -45,7 +45,7 @@ def main(args):
         with tf.Session() as sess:
             facenet.load_model(args.model)
 
-            image_list = load_images_from_folder(args.data_dir)
+            image_list, image_filenames = load_images_from_folder(args.data_dir)
             images = align_data(
                 image_list, args.image_size, args.margin, pnet, rnet, onet
             )
@@ -108,14 +108,22 @@ def main(args):
                         if not os.path.exists(path):
                             os.makedirs(path)
                             for j in np.nonzero(labels == i)[0]:
+                                # print("original name:", image_filenames[j])
+                                # print("proposed name:", str(cnt) + ".png")
                                 misc.imsave(
-                                    os.path.join(path, str(cnt) + ".png"), images[j]
+                                    os.path.join(path, image_filenames[j]),
+                                    images[j]
+                                    # os.path.join(path, str(cnt) + ".png"), images[j]
                                 )
                                 cnt += 1
                         else:
                             for j in np.nonzero(labels == i)[0]:
+                                # print("original name:", image_filenames[j])
+                                # print("proposed name:", str(cnt) + ".png")
                                 misc.imsave(
-                                    os.path.join(path, str(cnt) + ".png"), images[j]
+                                    os.path.join(path, image_filenames[j]),
+                                    images[j]
+                                    # os.path.join(path, str(cnt) + ".png"), images[j]
                                 )
                                 cnt += 1
 
