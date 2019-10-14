@@ -1,3 +1,25 @@
+### Danny's Additions
+
+If `import facenet` fails, run ` export PYTHONPATH=facenet/src` in the env.
+
+Images can now be aligned - largely thanks to [this tutorial](https://github.com/davidsandberg/facenet/wiki/Classifier-training-of-inception-resnet-v1).
+```
+python facenet/src/align/align_dataset_mtcnn.py FERET/anony_subset/ FERET/anony_subset_align
+```
+
+Embedding extraction now works:
+```
+python facenet/contributed/export_embeddings.py facenet/src/models/20180402-114759/ FERET/origisubs
+```
+
+Distance matrix constructed by:
+```
+python facenet/contributed/cluster.py facenet/src/models/20180402-114759 FERET/origisub/ FERET/clusterd
+```
+
+
+Clustering:
+
 # Face Recognition using Tensorflow [![Build Status][travis-image]][travis]
 
 [travis-image]: http://travis-ci.org/davidsandberg/facenet.svg?branch=master
