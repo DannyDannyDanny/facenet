@@ -38,94 +38,109 @@ from sklearn.cluster import DBSCAN
 
 
 def main(args):
-    pnet, rnet, onet = create_network_face_detection(args.gpu_memory_fraction)
+    print("creating network:")
+    # pnet, rnet, onet = create_network_face_detection(args.gpu_memory_fraction)
 
+    print("entering with tf sections")
     with tf.Graph().as_default():
-
         with tf.Session() as sess:
-            facenet.load_model(args.model)
-
+            print("loading images from folder")
             image_list, image_filenames = load_images_from_folder(args.data_dir)
-            images = align_data(
-                image_list, args.image_size, args.margin, pnet, rnet, onet
-            )
-
+            print("----->", len(image_list), "images found")
+            # images = align_data(
+            #     image_list, args.image_size, args.margin, pnet, rnet, onet
+            # )
+            print("loading model:")
+            facenet.load_model(args.model)
             images_placeholder = sess.graph.get_tensor_by_name("input:0")
             embeddings = sess.graph.get_tensor_by_name("embeddings:0")
             phase_train_placeholder = sess.graph.get_tensor_by_name("phase_train:0")
             feed_dict = {images_placeholder: images, phase_train_placeholder: False}
             emb = sess.run(embeddings, feed_dict=feed_dict)
-
             nrof_images = len(images)
 
             matrix = np.zeros((nrof_images, nrof_images))
 
             for i in range(nrof_images):
                 for j in range(nrof_images):
-                    dist = np.sqrt(np.sum(np.square(np.subtract(emb[i, :], emb[j, :]))))
+                    # dist = np.sqrt(np.sum(np.square(np.subtract(emb[i, :], emb[j, :]))))
+                    dist = 0
                     matrix[i][j] = dist
 
-            np.save("dist_matrix.npy", matrix)
+            print("saving matrix & image filenames")
+            matrix_savepath = "dist_matrix.npy"
+            imgfnames_savepath = "img_fnames.npy"
+            print("saving matrix:", matrix_savepath)
+            print("saving image filenames:", imgfnames_savepath)
+            # np.save(matrix_savepath, matrix)
+            # np.save(imgfnames_savepath, image_filenames)
 
-            # DBSCAN is the only algorithm that doesn't require the number of clusters to be defined.
-            db = DBSCAN(
-                eps=args.cluster_threshold,
-                min_samples=args.min_cluster_size,
-                metric="precomputed",
-            )
-            db.fit(matrix)
-            labels = db.labels_
+            if False:
+                # DBSCAN is the only algorithm that doesn't require the number of clusters to be defined.
+                db = DBSCAN(
+                    eps=args.cluster_threshold,
+                    min_samples=args.min_cluster_size,
+                    metric="precomputed",
+                )
+                db.fit(matrix)
+                labels = db.labels_
 
-            # get number of clusters
-            no_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+                # get number of clusters
+                no_clusters = len(set(labels)) - (1 if -1 in labels else 0)
 
-            print("No of clusters:", no_clusters)
+                print("No of clusters:", no_clusters)
 
-            if no_clusters > 0:
-                if args.largest_cluster_only:
-                    largest_cluster = 0
-                    for i in range(no_clusters):
-                        print("Cluster {}: {}".format(i, np.nonzero(labels == i)[0]))
-                        if len(np.nonzero(labels == i)[0]) > len(
-                            np.nonzero(labels == largest_cluster)[0]
-                        ):
-                            largest_cluster = i
-                    print(
-                        "Saving largest cluster (Cluster: {})".format(largest_cluster)
-                    )
-                    cnt = 1
-                    for i in np.nonzero(labels == largest_cluster)[0]:
-                        misc.imsave(
-                            os.path.join(args.out_dir, str(cnt) + ".png"), images[i]
+                if no_clusters > 0:
+                    if args.largest_cluster_only:
+                        largest_cluster = 0
+                        for i in range(no_clusters):
+                            print(
+                                "Cluster {}: {}".format(i, np.nonzero(labels == i)[0])
+                            )
+                            if len(np.nonzero(labels == i)[0]) > len(
+                                np.nonzero(labels == largest_cluster)[0]
+                            ):
+                                largest_cluster = i
+                        print(
+                            "Saving largest cluster (Cluster: {})".format(
+                                largest_cluster
+                            )
                         )
-                        cnt += 1
-                else:
-                    print("Saving all clusters")
-                    for i in range(no_clusters):
                         cnt = 1
-                        print("Cluster {}: {}".format(i, np.nonzero(labels == i)[0]))
-                        path = os.path.join(args.out_dir, str(i))
-                        if not os.path.exists(path):
-                            os.makedirs(path)
-                            for j in np.nonzero(labels == i)[0]:
-                                # print("original name:", image_filenames[j])
-                                # print("proposed name:", str(cnt) + ".png")
-                                misc.imsave(
-                                    os.path.join(path, image_filenames[j]),
-                                    images[j]
-                                    # os.path.join(path, str(cnt) + ".png"), images[j]
-                                )
-                                cnt += 1
-                        else:
-                            for j in np.nonzero(labels == i)[0]:
-                                # print("original name:", image_filenames[j])
-                                # print("proposed name:", str(cnt) + ".png")
-                                misc.imsave(
-                                    os.path.join(path, image_filenames[j]),
-                                    images[j]
-                                    # os.path.join(path, str(cnt) + ".png"), images[j]
-                                )
-                                cnt += 1
+                        for i in np.nonzero(labels == largest_cluster)[0]:
+                            misc.imsave(
+                                os.path.join(args.out_dir, str(cnt) + ".png"), images[i]
+                            )
+                            cnt += 1
+                    else:
+                        print("Saving all clusters")
+                        for i in range(no_clusters):
+                            cnt = 1
+                            print(
+                                "Cluster {}: {}".format(i, np.nonzero(labels == i)[0])
+                            )
+                            path = os.path.join(args.out_dir, str(i))
+                            if not os.path.exists(path):
+                                os.makedirs(path)
+                                for j in np.nonzero(labels == i)[0]:
+                                    # print("original name:", image_filenames[j])
+                                    # print("proposed name:", str(cnt) + ".png")
+                                    misc.imsave(
+                                        os.path.join(path, image_filenames[j]),
+                                        images[j]
+                                        # os.path.join(path, str(cnt) + ".png"), images[j]
+                                    )
+                                    cnt += 1
+                            else:
+                                for j in np.nonzero(labels == i)[0]:
+                                    # print("original name:", image_filenames[j])
+                                    # print("proposed name:", str(cnt) + ".png")
+                                    misc.imsave(
+                                        os.path.join(path, image_filenames[j]),
+                                        images[j]
+                                        # os.path.join(path, str(cnt) + ".png"), images[j]
+                                    )
+                                    cnt += 1
 
 
 def align_data(image_list, image_size, margin, pnet, rnet, onet):
@@ -184,6 +199,8 @@ def load_images_from_folder(folder):
             if img is not None:
                 images.append(img)
                 image_filenames.append(filename)
+    print("LEN IMAGES:", len(images))
+    print("LEN IMAGE FNAMES", len(image_filenames))
     return images, image_filenames
 
 
