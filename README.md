@@ -17,6 +17,51 @@ Distance matrix constructed by:
 python facenet/contributed/cluster.py facenet/src/models/20180402-114759 FERET/origisub/ FERET/clusterd
 ```
 
+# Intro
+DeepPrivacy (2019)
+https://arxiv.org/abs/1909.04538v1
+
+FaceNet (2015)
+https://arxiv.org/abs/1503.03832
+
+
+
+DeepPrivacy (2019) proposes a novel architecture which is able to automatically anonymize faces in images.
+
+The paper does this wh
+
+while retaining the original data distribution. This is anonymization
+
+
+
+We ensure total anonymization of all faces in an image by generating images exclusively on privacy-safe information.
+
+Our model is based on a conditional generative adversarial network, generating images considering the original pose and image background.
+
+The conditional information enables us to generate highly realistic faces with a seamless transition between the generated face and the existing background. Furthermore, we introduce a diverse dataset of human faces, including unconventional poses, occluded faces, and a vast variability in backgrounds. Finally, we present experimental results reflecting the capability of our model to anonymize images while preserving the data distribution, making the data suitable for further training of deep learning models. As far as we know, no other solution has been proposed that guarantees the anonymization of faces while generating realistic images.
+
+
+
+
+Facenet and
+
+Future features:
+
+The goal of this paper is review the
+
+To examine how well DeepPrivacy can spoof FaceNet into thinking the anonymized images are
+
+How DeepPrivacy anonymization compares to
+
+Hypothesis:
+
+As the goal of DeepPrivacy is [to replace faces **realistically**], the anonymized faces inevitably retain certain characteristics i.e skin color. Thus I hypothesize that the distance metric between pairs of faces will be greatest in different faces on different people.
+
+There are several categories
+
+Facenet - Discriminates
+
+
 
 Clustering:
 
